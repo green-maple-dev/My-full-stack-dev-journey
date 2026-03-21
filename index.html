@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/png" href="images/JP_flag.png" />
-    <title>All in 1 JLC</title>
+    <title>Japanese Study Hub</title>
     <style>
         :root {
             --bg: #f8f9fa;
@@ -174,7 +173,7 @@
 
         .flashcard-wrapper {
             perspective: 1000px;
-            height: 320px;
+            height: 390px;
             cursor: pointer;
         }
 
@@ -216,8 +215,17 @@
             transform: rotateY(180deg);
             display: grid;
             grid-template-columns: 1fr 1fr;
-            grid-template-rows: 1fr 92px;
-            padding: 0;
+            grid-template-rows: auto auto auto auto 1fr;
+            gap: 10px;
+            padding: 14px;
+            overflow-y: auto;
+        }
+
+        .back-section {
+            grid-column: 1 / -1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
 
         .back-half {
@@ -225,57 +233,96 @@
             align-items: center;
             justify-content: center;
             flex-direction: column;
-            padding: 18px;
-            min-height: 0;
+            padding: 16px;
+            min-height: 110px;
+            background: #fafcff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
         }
 
         .back-left {
-            border-right: 1px solid var(--border);
-        }
-
-        .back-image {
-            grid-column: 1 / -1;
-            width: 100%;
-            height: 92px;
-            object-fit: cover;
-            border-top: 1px solid var(--border);
-            display: none;
+            border-right: none;
         }
 
         .reading-label {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: #666;
             margin-bottom: 8px;
         }
 
         .reading-value {
-            font-size: 1.65rem;
+            font-size: 1.55rem;
             color: var(--primary);
             font-weight: bold;
             text-align: center;
         }
 
         .meaning-value {
-            font-size: 1.75rem;
+            font-size: 1.65rem;
             font-weight: bold;
             color: #222;
             text-align: center;
         }
 
-        .next-btn {
+        .field-label {
+            font-size: 0.82rem;
+            color: #666;
+            font-weight: 600;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .field-value {
+            font-size: 0.98rem;
+            line-height: 1.55;
+            white-space: pre-wrap;
+        }
+
+        .extra-img {
             width: 100%;
-            padding: 15px;
+            max-height: 120px;
+            object-fit: contain;
+            border-radius: 10px;
+            border: 1px solid #eee;
+            display: none;
+            background: white;
+        }
+
+        .extra-audio {
+            width: 100%;
+            display: none;
+        }
+
+        .next-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .nav-card-btn {
+            width: 100%;
+            padding: 14px 12px;
             background: var(--primary);
             color: white;
             border: none;
             border-radius: 10px;
-            margin-top: 10px;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.98rem;
+            font-weight: 600;
         }
 
-        .next-btn:hover {
-            filter: brightness(0.96);
+        .nav-card-btn.secondary {
+            background: #6c757d;
+        }
+
+        .nav-card-btn.tertiary {
+            background: #2f80ed;
+        }
+
+        .nav-card-btn:hover {
+            filter: brightness(0.97);
         }
 
         .empty-state {
@@ -286,6 +333,23 @@
             border: 1px dashed #d8d8d8;
             border-radius: 12px;
         }
+
+        footer.app-footer {
+            width: 100%;
+            text-align: center;
+            padding: 18px 12px 24px;
+            font-size: 0.95rem;
+        }
+
+        footer.app-footer a {
+            color: #4a90e2;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        footer.app-footer a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -295,9 +359,8 @@
     <button class="nav-btn" onclick="showSection('home')">🏠 Home</button>
 </nav>
 
-<!-- HOME -->
 <div id="home" class="container active">
-    <h1>All in 1 JLC 🇯🇵</h1>
+    <h1>Japanese Hub</h1>
     <div class="menu-grid">
         <div class="list-item" onclick="showSection('fc-menu', true)">
             🎴 Flashcard Categories <span>></span>
@@ -314,7 +377,6 @@
     </div>
 </div>
 
-<!-- FLASHCARD MENU -->
 <div id="fc-menu" class="container">
     <h2>Categories</h2>
     <div class="menu-grid">
@@ -324,7 +386,6 @@
     </div>
 </div>
 
-<!-- FLASHCARD PLAYER -->
 <div id="fc-player" class="container">
     <h2 id="category-title">Category</h2>
 
@@ -334,25 +395,47 @@
                 <div class="card-face card-front" id="front-text"></div>
 
                 <div class="card-face card-back">
-                    <div class="back-half back-left">
+                    <div class="back-section">
                         <div class="reading-label">Reading</div>
                         <div class="reading-value" id="reading-text"></div>
                     </div>
-                    <div class="back-half">
+
+                    <div class="back-section">
                         <div class="reading-label">Meaning</div>
                         <div class="meaning-value" id="back-text"></div>
                     </div>
 
-                    <img id="card-image" class="back-image" alt="Flashcard image" />
+                    <div class="back-half">
+                        <div class="field-label">Formality</div>
+                        <div class="field-value" id="formality-text"></div>
+                    </div>
+
+                    <div class="back-half">
+                        <div class="field-label">Examples</div>
+                        <div class="field-value" id="examples-text"></div>
+                    </div>
+
+                    <div class="back-section">
+                        <div class="field-label">Explanation</div>
+                        <div class="field-value" id="explanation-text"></div>
+                    </div>
+
+                    <img id="card-image" class="extra-img" alt="Flashcard image" />
+                    <img id="pronunciation-img" class="extra-img" alt="Pronunciation image" />
+                    <img id="writing-img" class="extra-img" alt="Writing stroke image" />
+                    <audio id="pronunciation-audio" class="extra-audio" controls></audio>
                 </div>
             </div>
         </div>
 
-        <button class="next-btn" onclick="nextCard()">Next Card →</button>
+        <div class="next-row">
+            <button class="nav-card-btn secondary" onclick="previousCard()">← Previous</button>
+            <button class="nav-card-btn" onclick="nextCard()">Next →</button>
+            <button class="nav-card-btn tertiary" onclick="shuffleCurrentDeck()">Shuffle</button>
+        </div>
     </div>
 </div>
 
-<!-- TOPIC LIST PAGE -->
 <div id="topic-list" class="container">
     <h2 id="topic-list-title">Topics</h2>
 
@@ -367,7 +450,6 @@
     <div id="topic-list-body" class="topic-list"></div>
 </div>
 
-<!-- TOPIC VIEW PAGE -->
 <div id="topic-view" class="container topic-view">
     <div class="page-card">
         <h2 id="topic-title">Topic</h2>
@@ -384,6 +466,12 @@
         <div id="topic-content" class="topic-content"></div>
     </div>
 </div>
+
+<footer class="app-footer">
+    <a href="Your google drive link here" target="_blank" rel="noopener noreferrer">
+        Download the app version ( Android only )
+    </a>
+</footer>
 
 <script>
     // -----------------------------
@@ -426,23 +514,80 @@
 
     // -----------------------------
     // FLASHCARD DATA
+    // Add your own PNG/JPG/MP3 files in the paths below.
     // -----------------------------
     const allDecks = {
         'A': [
-            { front: "あお", reading: "Aoi", back: "Blue", image: "images/aoi.png" },
-            { front: "あい", reading: "Ai", back: "Love", image: "images/ai.png" }
+            {
+                front: "あお",
+                reading: "Aoi",
+                back: "Blue",
+                image: "images/aoi.png",
+                pronunciation_img: "images/aoi-pronunciation.png",
+                writing_img: "images/aoi-stroke.png",
+                audio: "audio/aoi.mp3",
+                examples: "空はあおいです。\nThe sky is blue.",
+                formality: "Neutral / common usage",
+                explanation: "あお means blue and is used for describing color in general."
+            },
+            {
+                front: "あい",
+                reading: "Ai",
+                back: "Love",
+                image: "images/ai.png",
+                pronunciation_img: "images/ai-pronunciation.png",
+                writing_img: "images/ai-stroke.png",
+                audio: "audio/ai.mp3",
+                examples: "家族のあい。\nFamily love.",
+                formality: "Neutral / common usage",
+                explanation: "あい means love or affection."
+            }
         ],
         'KA': [
-            { front: "かさ", reading: "Kasa", back: "Umbrella", image: "images/kasa.png" },
-            { front: "かに", reading: "Kani", back: "Crab", image: "images/kani.png" }
+            {
+                front: "かさ",
+                reading: "Kasa",
+                back: "Umbrella",
+                image: "images/kasa.png",
+                pronunciation_img: "images/kasa-pronunciation.png",
+                writing_img: "images/kasa-stroke.png",
+                audio: "audio/kasa.mp3",
+                examples: "かさを持っていきます。\nI will take an umbrella.",
+                formality: "Neutral / common usage",
+                explanation: "かさ means umbrella."
+            },
+            {
+                front: "かに",
+                reading: "Kani",
+                back: "Crab",
+                image: "images/kani.png",
+                pronunciation_img: "images/kani-pronunciation.png",
+                writing_img: "images/kani-stroke.png",
+                audio: "audio/kani.mp3",
+                examples: "かには海にいます。\nCrabs are in the sea.",
+                formality: "Neutral / common usage",
+                explanation: "かに means crab."
+            }
         ],
         'SA': [
-            { front: "さむい", reading: "Samui", back: "Cold (Weather)", image: "images/samui.png" }
+            {
+                front: "さむい",
+                reading: "Samui",
+                back: "Cold (Weather)",
+                image: "images/samui.png",
+                pronunciation_img: "images/samui-pronunciation.png",
+                writing_img: "images/samui-stroke.png",
+                audio: "audio/samui.mp3",
+                examples: "今日はさむいです。\nIt is cold today.",
+                formality: "Polite / neutral",
+                explanation: "さむい is used for cold weather or temperature."
+            }
         ]
     };
 
     let currentActiveDeck = [];
-    let currentIndex = 0;
+    let currentOrder = [];
+    let currentPosition = 0;
 
     function startFlashcards(row) {
         currentActiveDeck = allDecks[row] || [];
@@ -451,10 +596,28 @@
             return;
         }
 
-        currentIndex = 0;
+        currentOrder = currentActiveDeck.map((_, index) => index);
+        shuffleArray(currentOrder);
+
+        currentPosition = 0;
         document.getElementById('category-title').innerText = row + " Row";
         updateUI();
         showSection('fc-player', true);
+    }
+
+    function shuffleCurrentDeck() {
+        if (!currentActiveDeck.length) return;
+        shuffleArray(currentOrder);
+        currentPosition = 0;
+        document.getElementById('card').classList.remove('flipped');
+        updateUI();
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
     }
 
     function flipCard() {
@@ -462,30 +625,60 @@
     }
 
     function nextCard() {
-        const card = document.getElementById('card');
-        card.classList.remove('flipped');
-
+        if (!currentActiveDeck.length) return;
+        document.getElementById('card').classList.remove('flipped');
         setTimeout(() => {
-            currentIndex = (currentIndex + 1) % currentActiveDeck.length;
+            currentPosition = (currentPosition + 1) % currentOrder.length;
             updateUI();
         }, 160);
     }
 
-    function updateUI() {
-        const data = currentActiveDeck[currentIndex];
-        document.getElementById('front-text').innerText = data.front;
-        document.getElementById('reading-text').innerText = data.reading;
-        document.getElementById('back-text').innerText = data.back;
+    function previousCard() {
+        if (!currentActiveDeck.length) return;
+        document.getElementById('card').classList.remove('flipped');
+        setTimeout(() => {
+            currentPosition = (currentPosition - 1 + currentOrder.length) % currentOrder.length;
+            updateUI();
+        }, 160);
+    }
 
-        const img = document.getElementById('card-image');
-        if (data.image) {
-            img.src = data.image;
-            img.alt = data.front;
-            img.style.display = 'block';
+    function setImage(id, src, altText) {
+        const el = document.getElementById(id);
+        if (src) {
+            el.src = src;
+            if (altText) el.alt = altText;
+            el.style.display = 'block';
         } else {
-            img.removeAttribute('src');
-            img.style.display = 'none';
+            el.removeAttribute('src');
+            el.style.display = 'none';
         }
+    }
+
+    function setAudio(id, src) {
+        const el = document.getElementById(id);
+        if (src) {
+            el.src = src;
+            el.style.display = 'block';
+        } else {
+            el.removeAttribute('src');
+            el.style.display = 'none';
+        }
+    }
+
+    function updateUI() {
+        const data = currentActiveDeck[currentOrder[currentPosition]];
+
+        document.getElementById('front-text').innerText = data.front || '';
+        document.getElementById('reading-text').innerText = data.reading || '';
+        document.getElementById('back-text').innerText = data.back || '';
+        document.getElementById('formality-text').innerText = data.formality || '';
+        document.getElementById('examples-text').innerText = data.examples || '';
+        document.getElementById('explanation-text').innerText = data.explanation || '';
+
+        setImage('card-image', data.image, data.front || 'Flashcard image');
+        setImage('pronunciation-img', data.pronunciation_img, 'Pronunciation image');
+        setImage('writing-img', data.writing_img, 'Writing stroke image');
+        setAudio('pronunciation-audio', data.audio);
     }
 
     // -----------------------------
@@ -656,7 +849,6 @@ Example:
         const sortMode = document.getElementById('sort-mode').value;
 
         if (sortMode === 'jlpt') {
-            // N5 -> N1 (easier to harder)
             topics.sort((a, b) => b.jlpt_level - a.jlpt_level);
         } else if (sortMode === 'character') {
             topics.sort((a, b) => compareKana(a.character_letter, b.character_letter));
@@ -819,26 +1011,8 @@ Example:
         }
 
         return 0;
-}
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/service-worker.js')
-      .then(() => console.log("Offline mode active!"))
-      .catch((err) => console.log("Offline setup failed", err));
     }
 </script>
-...
-</script>
 
-<footer style="width: 100%; text-align: center; padding: 18px 12px 24px; font-size: 0.95rem;">
-    <a href="https://drive.google.com/file/d/1N18YaAgjMDTDK9Xs8wEIDoRAgEO3UO1Z/view?usp=sharing"
-       target="_blank"
-       rel="noopener noreferrer"
-       style="color: #4a90e2; font-weight: bold; text-decoration: none;">
-        Download the app version ( Android only )
-    </a>
-</footer>
-
-</body>
-</html>
 </body>
 </html>
