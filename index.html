@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Japanese Study Hub</title>
+    <style>
+        :root {
+            --bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --primary: #4a90e2;
+            --text: #333;
+            --accent: #eef5ff;
+            --border: #e9ecef;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Meiryo', sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text);
+        }
+
+        nav {
+            width: 100%;
+            background: white;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-weight: bold;
+            cursor: pointer;
+            padding: 4px 0;
+        }
+
+        .container {
+            width: min(92%, 560px);
+            margin-top: 20px;
+            display: none;
+            animation: fadeIn 0.25s ease;
+            padding-bottom: 24px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .active {
+            display: block;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .list-item {
+            background: white;
+            padding: 18px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid transparent;
+        }
+
+        .list-item:hover {
+            background: var(--accent);
+            border-color: #dbe8ff;
+        }
+
+        .topic-meta {
+            font-size: 0.85rem;
+            color: #6a6a6a;
+            margin-top: 6px;
+            font-weight: normal;
+        }
+
+        .page-card {
+            background: white;
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        select {
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid #d9d9d9;
+            background: white;
+            font: inherit;
+            outline: none;
+        }
+
+        .topic-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .topic-view h2 {
+            margin-top: 0;
+        }
+
+        .topic-image {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 14px;
+            display: none;
+            cursor: zoom-in;
+        }
+
+        .topic-badges {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 10px 0 16px;
+        }
+
+        .badge {
+            font-size: 0.85rem;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #f2f6ff;
+            color: #305f9e;
+            border: 1px solid #d8e5ff;
+        }
+
+        .topic-content {
+            line-height: 1.7;
+            white-space: pre-wrap;
+        }
+
+        .topic-content ul {
+            padding-left: 20px;
+        }
+
+        /* Flashcards */
+        .flashcard-wrap {
+            margin-top: 18px;
+            margin-bottom: 18px;
+        }
+
+        .flashcard-wrapper {
+            perspective: 1000px;
+            height: clamp(420px, 72vh, 620px);
+            cursor: pointer;
+        }
+
+        .flashcard {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.10);
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            background: white;
+            overflow: hidden;
+        }
+
+        .card-front {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            font-weight: bold;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 14px;
+            overflow-y: auto;
+        }
+
+        .back-section {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .back-half {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 16px;
+            min-height: 110px;
+            background: #fafcff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        .reading-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .reading-value {
+            font-size: 1.55rem;
+            color: var(--primary);
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .meaning-value {
+            font-size: 1.65rem;
+            font-weight: bold;
+            color: #222;
+            text-align: center;
+        }
+
+        .field-label {
+            font-size: 0.82rem;
+            color: #666;
+            font-weight: 600;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .field-value {
+            font-size: 0.98rem;
+            line-height: 1.55;
+            white-space: pre-wrap;
+        }
+        
+        .media-row.two-column,
+        .audio-row.two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .audio-row.two-column > div {
+            width: 100%;
+        }
+
+        .extra-audio {
+            width: 100%;
+            display: block;
+        }
+
+        @media (max-width: 560px) {
+            .media-row.two-column,
+            .audio-row.two-column {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .media-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .media-item {
+            width: 100%;
+            height: 120px;
+            max-height: 120px;
+            object-fit: contain;
+            border-radius: 10px;
+            border: 1px solid #eee;
+            background: white;
+            display: block;
+        }
+
+        .clickable-media {
+            cursor: zoom-in;
+        }
+
+        .audio-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .extra-audio {
+            width: 100%;
+            display: block;
+        }
+
+        .writing-media-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .writing-row {
+            display: grid;
+            gap: 10px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .writing-row.cols-1 {
+            grid-template-columns: 1fr;
+            max-width: 220px;
+        }
+
+        .writing-row.cols-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            max-width: 420px;
+        }
+
+        .writing-row.cols-3 {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .nav-card-btn {
+            width: 100%;
+            padding: 14px 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.98rem;
+            font-weight: 600;
+        }
+
+        .nav-card-btn.secondary {
+            background: #6c757d;
+        }
+
+        .nav-card-btn.tertiary {
+            background: #2f80ed;
+        }
+
+        .nav-card-btn:hover {
+            filter: brightness(0.97);
+        }
+
+        .next-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .empty-state {
+            padding: 16px;
+            color: #666;
+            text-align: center;
+            background: white;
+            border: 1px dashed #d8d8d8;
+            border-radius: 12px;
+        }
+
+        footer.app-footer {
+            width: 100%;
+            text-align: center;
+            padding: 18px 12px 24px;
+            font-size: 0.95rem;
+        }
+
+        footer.app-footer a {
+            color: #4a90e2;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        footer.app-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Fullscreen media modal */
+        .media-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.78);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            padding: 18px;
+        }
+
+        .media-modal.open {
+            display: flex;
+        }
+
+        .media-modal-panel {
+            position: relative;
+            width: min(96vw, 1100px);
+            max-height: 92vh;
+            background: #111;
+            border-radius: 16px;
+            padding: 14px;
+            box-shadow: 0 14px 40px rgba(0,0,0,0.35);
+        }
+
+        .media-modal-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .media-modal-content img,
+        .media-modal-content video {
+            width: 100%;
+            max-height: calc(92vh - 28px);
+            object-fit: contain;
+            border-radius: 12px;
+            background: #000;
+            display: block;
+        }
+
+        .media-modal-close {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            border: none;
+            background: rgba(255,255,255,0.14);
+            color: white;
+            font-size: 1.5rem;
+            line-height: 1;
+            width: 38px;
+            height: 38px;
+            border-radius: 999px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 560px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .next-row {
+                grid-template-columns: 1fr;
+            }
+
+            .writing-row.cols-2,
+            .writing-row.cols-3 {
+                grid-template-columns: 1fr;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <button class="nav-btn" id="back-button" onclick="goBack()" style="visibility: hidden;">← Back</button>
+    <button class="nav-btn" onclick="showSection('home')">🏠 Home</button>
+</nav>
+
+<div id="home" class="container active">
+    <h1>Japanese Hub</h1>
+    <div class="menu-grid">
+        <div class="list-item" onclick="showSection('fc-menu', true)">
+            🎴 Flashcard Categories <span>></span>
+        </div>
+        <div class="list-item" onclick="openTopicCategory('reading')">
+            📖 Practice Reading <span>></span>
+        </div>
+        <div class="list-item" onclick="openTopicCategory('grammar')">
+            📝 Grammar Explanation <span>></span>
+        </div>
+        <div class="list-item" onclick="openTopicCategory('mistakes')">
+            ⚠️ Common Mistakes <span>></span>
+        </div>
+    </div>
+</div>
+
+<div id="fc-menu" class="container">
+    <h2>Categories</h2>
+    <div class="menu-grid">
+        <div class="list-item" onclick="startFlashcards('A')">A-Row (あいうえお)</div>
+        <div class="list-item" onclick="startFlashcards('KA')">KA-Row (かきくけこ)</div>
+        <div class="list-item" onclick="startFlashcards('SA')">SA-Row (さしすせそ)</div>
+    </div>
+</div>
+
+<div id="fc-player" class="container">
+    <h2 id="category-title">Category</h2>
+
+    <div class="flashcard-wrap">
+        <div class="flashcard-wrapper" onclick="flipCard()">
+            <div class="flashcard" id="card">
+                <div class="card-face card-front" id="front-text"></div>
+
+                <div class="card-face card-back">
+                    <div class="back-section">
+                        <div class="reading-label">Reading</div>
+                        <div class="reading-value" id="reading-text"></div>
+                    </div>
+
+                    <div class="back-section">
+                        <div class="reading-label">Meaning</div>
+                        <div class="meaning-value" id="back-text"></div>
+                    </div>
+
+                    <div class="info-grid">
+                        <div class="back-half">
+                            <div class="field-label">Formality</div>
+                            <div class="field-value" id="formality-text"></div>
+                        </div>
+
+                        <div class="back-half">
+                            <div class="field-label">Examples</div>
+                            <div class="field-value" id="examples-text"></div>
+                        </div>
+                    </div>
+
+                    <div class="back-section">
+                        <div class="field-label">Explanation</div>
+                        <div class="field-value" id="explanation-text"></div>
+                    </div>
+
+                    <div class="media-section">
+                        <div class="media-row two-column">
+                            <img id="card-image" class="media-item clickable-media" alt="Flashcard image" />
+                            <img id="pronunciation-img" class="media-item clickable-media" alt="Pronunciation image" />
+                        </div>
+
+                        <div class="audio-row two-column">
+                            <div>
+                                <div class="field-label">Pronunciation Audio</div>
+                                <audio id="pronunciation-audio" class="extra-audio" controls onclick="event.stopPropagation()"></audio>
+                            </div>
+                            <div>
+                                <div class="field-label">Sentence Audio</div>
+                                <audio id="sentence-audio" class="extra-audio" controls onclick="event.stopPropagation()"></audio>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="field-label">Writing Stroke</div>
+                            <div id="writing-media-container" class="writing-media-stack"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="next-row">
+            <button class="nav-card-btn secondary" onclick="previousCard()">← Previous</button>
+            <button class="nav-card-btn" onclick="nextCard()">Next →</button>
+            <button class="nav-card-btn tertiary" onclick="shuffleCurrentDeck()">Shuffle</button>
+        </div>
+    </div>
+</div>
+
+<div id="topic-list" class="container">
+    <h2 id="topic-list-title">Topics</h2>
+
+    <div class="controls">
+        <select id="sort-mode" onchange="renderTopicList()">
+            <option value="difficulty" selected>Sort by Difficulty</option>
+            <option value="jlpt">Sort by JLPT Level</option>
+            <option value="character">Sort by Character</option>
+        </select>
+    </div>
+
+    <div id="topic-list-body" class="topic-list"></div>
+</div>
+
+<div id="topic-view" class="container topic-view">
+    <div class="page-card">
+        <h2 id="topic-title">Topic</h2>
+
+        <img id="topic-image" class="topic-image" alt="Topic image" />
+
+        <div class="topic-badges">
+            <span class="badge" id="badge-category"></span>
+            <span class="badge" id="badge-jlpt"></span>
+            <span class="badge" id="badge-difficulty"></span>
+            <span class="badge" id="badge-character"></span>
+        </div>
+
+        <div id="topic-content" class="topic-content"></div>
+    </div>
+</div>
+
+<footer class="app-footer">
+    <a href="Your google drive link here" target="_blank" rel="noopener noreferrer">
+        Download the app version ( Android only )
+    </a>
+</footer>
+
+<div id="media-modal" class="media-modal" onclick="closeMediaModal()">
+    <div class="media-modal-panel" onclick="event.stopPropagation()">
+        <button class="media-modal-close" onclick="closeMediaModal()">×</button>
+        <div id="media-modal-content" class="media-modal-content"></div>
+    </div>
+</div>
+
+<script>
+    // -----------------------------
+    // NAVIGATION
+    // -----------------------------
+    let navigationHistory = ['home'];
+    let currentTopicCategory = null;
+    let displayedTopics = [];
+
+    function showSection(id, pushHistory = false) {
+        document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+
+        if (id === 'home') {
+            navigationHistory = ['home'];
+        } else if (pushHistory) {
+            navigationHistory.push(id);
+        }
+
+        document.getElementById('back-button').style.visibility =
+            navigationHistory.length > 1 ? 'visible' : 'hidden';
+    }
+
+    function goBack() {
+        if (navigationHistory.length <= 1) return;
+
+        navigationHistory.pop();
+        const prevSection = navigationHistory[navigationHistory.length - 1];
+
+        document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
+        document.getElementById(prevSection).classList.add('active');
+
+        if (prevSection === 'topic-list') {
+            renderTopicList();
+        }
+
+        document.getElementById('back-button').style.visibility =
+            prevSection === 'home' ? 'hidden' : 'visible';
+    }
+
+    // -----------------------------
+    // FULLSCREEN MODAL
+    // -----------------------------
+    function openMediaModal(src, type, altText = '') {
+        const modal = document.getElementById('media-modal');
+        const content = document.getElementById('media-modal-content');
+
+        if (!src) return;
+
+        if (type === 'video') {
+            content.innerHTML = `
+                <video src="${src}" controls autoplay loop muted playsinline></video>
+            `;
+        } else {
+            content.innerHTML = `
+                <img src="${src}" alt="${altText}">
+            `;
+        }
+
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeMediaModal() {
+        const modal = document.getElementById('media-modal');
+        modal.classList.remove('open');
+        document.getElementById('media-modal-content').innerHTML = '';
+        document.body.style.overflow = '';
+    }
+
+    // -----------------------------
+    // FLASHCARD DATA
+    // -----------------------------
+    const allDecks = {
+        'A': [
+            {
+                front: "あお",
+                reading: "青 (あお)",
+                back: "Blue",
+                image: "images/青.webp",
+                pronunciation_img: "images/青-pronunciation.png",
+                writing_video_1: "videos/青-stroke.mp4",
+                writing_video_2: [
+                    "videos/あ.mp4",
+                    "videos/お.mp4"
+                ],
+                audio: "audio-files/青.mp3",
+                sentence_audio: "audio-files/青-sentence.mp3",
+                examples: "青は僕の好きな色です。\nBlue is my favorite color.",
+                formality: "Neutral / common usage",
+                explanation: "青 (あお) means blue. It can also mean green in compounds, plant contexts, and traffic-light contexts."
+            },
+            {
+                front: "愛",
+                reading: "あい",
+                back: "Love",
+                image: "images/ai.png",
+                pronunciation_img: "images/ai-pronunciation.png",
+                writing_video_1: "videos/ai-stroke-1.mp4",
+                writing_video_2: "videos/ai-stroke-2.mp4",
+                audio: "audio/ai.mp3",
+                sentence_audio: "audio/ai-sentence.mp3",
+                examples: "家族のあい。\nFamily love.",
+                formality: "Neutral / common usage",
+                explanation: "愛 (あい) means love or affection."
+            }
+        ],
+        'KA': [
+            {
+                front: "かさ",
+                reading: "Kasa",
+                back: "Umbrella",
+                image: "images/kasa.png",
+                pronunciation_img: "images/kasa-pronunciation.png",
+                writing_img: "images/kasa-stroke.png",
+                audio: "audio/kasa.mp3",
+                sentence_audio: "audio/kasa-sentence.mp3",
+                examples: "かさを持っていきます。\nI will take an umbrella.",
+                formality: "Neutral / common usage",
+                explanation: "かさ means umbrella."
+            },
+            {
+                front: "かに",
+                reading: "Kani",
+                back: "Crab",
+                image: "images/kani.png",
+                pronunciation_img: "images/kani-pronunciation.png",
+                writing_img: "images/kani-stroke.png",
+                audio: "audio/kani.mp3",
+                sentence_audio: "audio/kani-sentence.mp3",
+                examples: "かには海にいます。\nCrabs are in the sea.",
+                formality: "Neutral / common usage",
+                explanation: "かに means crab."
+            }
+        ],
+        'SA': [
+            {
+                front: "さむい",
+                reading: "Samui",
+                back: "Cold (Weather)",
+                image: "images/samui.png",
+                pronunciation_img: "images/samui-pronunciation.png",
+                writing_img: "images/samui-stroke.png",
+                audio: "audio/samui.mp3",
+                sentence_audio: "audio/samui-sentence.mp3",
+                examples: "今日はさむいです。\nIt is cold today.",
+                formality: "Polite / neutral",
+                explanation: "さむい is used for cold weather or temperature."
+            }
+        ]
+    };
+
+    let currentActiveDeck = [];
+    let currentOrder = [];
+    let currentPosition = 0;
+
+    function startFlashcards(row) {
+        currentActiveDeck = allDecks[row] || [];
+        if (currentActiveDeck.length === 0) {
+            alert("No cards in this row yet!");
+            return;
+        }
+
+        currentOrder = currentActiveDeck.map((_, index) => index);
+        shuffleArray(currentOrder);
+
+        currentPosition = 0;
+        document.getElementById('category-title').innerText = row + " Row";
+        updateUI();
+        showSection('fc-player', true);
+    }
+
+    function shuffleCurrentDeck() {
+        if (!currentActiveDeck.length) return;
+        shuffleArray(currentOrder);
+        currentPosition = 0;
+        document.getElementById('card').classList.remove('flipped');
+        updateUI();
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    function flipCard() {
+        document.getElementById('card').classList.toggle('flipped');
+    }
+
+    function nextCard() {
+        if (!currentActiveDeck.length) return;
+        document.getElementById('card').classList.remove('flipped');
+        setTimeout(() => {
+            currentPosition = (currentPosition + 1) % currentOrder.length;
+            updateUI();
+        }, 160);
+    }
+
+    function previousCard() {
+        if (!currentActiveDeck.length) return;
+        document.getElementById('card').classList.remove('flipped');
+        setTimeout(() => {
+            currentPosition = (currentPosition - 1 + currentOrder.length) % currentOrder.length;
+            updateUI();
+        }, 160);
+    }
+
+    function setImage(id, src, altText) {
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        if (src) {
+            el.src = src;
+            if (altText) el.alt = altText;
+            el.style.display = 'block';
+            el.classList.add('clickable-media');
+            el.onclick = (e) => {
+                e.stopPropagation();
+                openMediaModal(src, 'image', altText || el.alt || 'Image');
+            };
+        } else {
+            el.removeAttribute('src');
+            el.style.display = 'none';
+            el.onclick = null;
+        }
+    }
+
+    function setAudio(id, src) {
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        if (src) {
+            el.src = src;
+            el.style.display = 'block';
+        } else {
+            el.removeAttribute('src');
+            el.style.display = 'none';
+        }
+    }
+
+    function normalizeWritingMedia(data) {
+        const items = [];
+
+        const pushValue = (value, type) => {
+            if (!value) return;
+            if (Array.isArray(value)) {
+                value.filter(Boolean).forEach(src => items.push({ type, src }));
+            } else {
+                items.push({ type, src: value });
+            }
+        };
+
+        pushValue(data.writing_video, 'video');
+        pushValue(data.writing_videos, 'video');
+        pushValue(data.writing_video_1, 'video');
+        pushValue(data.writing_video_2, 'video');
+        pushValue(data.writing_img, 'image');
+        pushValue(data.writing_images, 'image');
+
+        return items.filter(item => item.src);
+    }
+
+    function getWritingRowSizes(count) {
+        if (count <= 0) return [];
+        if (count === 1) return [1];
+        if (count === 2) return [2];
+        if (count === 3) return [3];
+        if (count === 4) return [2, 2];
+        if (count === 5) return [3, 2];
+        if (count === 6) return [3, 3];
+        if (count === 7) return [3, 3, 1];
+        if (count === 8) return [3, 3, 2];
+        if (count === 9) return [3, 3, 3];
+
+        const rows = [];
+        let remaining = count;
+
+        while (remaining > 0) {
+            if (remaining === 4) {
+                rows.push(2, 2);
+                break;
+            }
+
+            const take = Math.min(3, remaining);
+            rows.push(take);
+            remaining -= take;
+        }
+
+        return rows;
+    }
+
+    function renderWritingMedia(data) {
+        const container = document.getElementById('writing-media-container');
+        if (!container) return;
+
+        const media = normalizeWritingMedia(data);
+
+        container.innerHTML = '';
+
+        if (!media.length) {
+            container.style.display = 'none';
+            return;
+        }
+
+        container.style.display = 'flex';
+
+        const rowSizes = getWritingRowSizes(media.length);
+        let index = 0;
+
+        rowSizes.forEach(size => {
+            const row = document.createElement('div');
+            row.className = `writing-row cols-${size}`;
+
+            const slice = media.slice(index, index + size);
+            slice.forEach(item => {
+                if (item.type === 'video') {
+                    const video = document.createElement('video');
+                    video.className = 'media-item clickable-media';
+                    video.src = item.src;
+                    video.autoplay = true;
+                    video.loop = true;
+                    video.muted = true;
+                    video.playsInline = true;
+                    video.preload = 'metadata';
+                    video.controls = false;
+                    video.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        openMediaModal(item.src, 'video', 'Writing video');
+                    });
+                    row.appendChild(video);
+                } else {
+                    const img = document.createElement('img');
+                    img.className = 'media-item clickable-media';
+                    img.src = item.src;
+                    img.alt = 'Writing image';
+                    img.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        openMediaModal(item.src, 'image', 'Writing image');
+                    });
+                    row.appendChild(img);
+                }
+            });
+
+            container.appendChild(row);
+            index += size;
+        });
+    }
+
+    function updateUI() {
+        const data = currentActiveDeck[currentOrder[currentPosition]];
+        if (!data) return;
+
+        document.getElementById('front-text').innerText = data.front || '';
+        document.getElementById('reading-text').innerText = data.reading || '';
+        document.getElementById('back-text').innerText = data.back || '';
+        document.getElementById('formality-text').innerText = data.formality || '';
+        document.getElementById('examples-text').innerText = data.examples || '';
+        document.getElementById('explanation-text').innerText = data.explanation || '';
+
+        setImage('card-image', data.image, data.front || 'Flashcard image');
+        setImage('pronunciation-img', data.pronunciation_img, 'Pronunciation image');
+
+        setAudio('pronunciation-audio', data.audio);
+        setAudio('sentence-audio', data.sentence_audio);
+
+        renderWritingMedia(data);
+    }
+
+    // -----------------------------
+    // TOPIC DATA
+    // -----------------------------
+    const topicData = {
+        grammar: [
+            {
+                title: "は vs が",
+                jlpt_level: 4,
+                difficulty_base: 2,
+                character_letter: "は",
+                image: "images/wa-vs-ga.png",
+                explanation: `
+は and が both mark grammatical roles, but they are not interchangeable.
+
+は marks the topic. It tells the listener what the sentence is about.
+が marks the subject, especially when emphasizing new information, existence, or ability.
+
+Examples:
+- わたしは学生です。
+  I am a student.
+
+- だれが来ましたか。
+  Who came?
+
+Key idea:
+Use は when you are setting the topic.
+Use が when you are identifying the subject or highlighting something specific.
+                `.trim()
+            },
+            {
+                title: "だ Meaning",
+                jlpt_level: 5,
+                difficulty_base: 1,
+                character_letter: "だ",
+                image: "images/da.png",
+                explanation: `
+だ is the plain copula in Japanese.
+
+It is used in casual speech and in dictionary-form style sentences.
+It connects nouns and adjectives in a direct way.
+
+Examples:
+- これは本だ。
+  This is a book.
+
+- 彼は先生だ。
+  He is a teacher.
+
+In polite speech, です is more common.
+                `.trim()
+            }
+        ],
+
+        reading: [
+            {
+                title: "Daily Life",
+                jlpt_level: 5,
+                difficulty_base: 1,
+                character_letter: "た",
+                image: "images/daily-life.png",
+                explanation: `
+Daily-life reading passages usually talk about routines, shopping, school, family, or transport.
+
+What to focus on:
+- common verbs
+- time expressions
+- particles
+- short sentence structure
+
+Example:
+- 朝ごはんを食べて、学校へ行きます。
+  I eat breakfast, then go to school.
+                `.trim()
+            },
+            {
+                title: "Train Announcements",
+                jlpt_level: 3,
+                difficulty_base: 4,
+                character_letter: "で",
+                image: "images/train.png",
+                explanation: `
+Train announcements often contain numbers, station names, direction words, and polite instructions.
+
+What to focus on:
+- destination names
+- delay / cancel vocabulary
+- platform numbers
+- time expressions
+
+Example:
+- 次の電車は5番線から出発します。
+  The next train departs from platform 5.
+                `.trim()
+            }
+        ],
+
+        mistakes: [
+            {
+                title: "Politeness Errors",
+                jlpt_level: 4,
+                difficulty_base: 3,
+                character_letter: "お",
+                image: "images/politeness.png",
+                explanation: `
+A common mistake is mixing casual and polite forms in the same sentence.
+
+Examples:
+- incorrect: 今日は忙しいです。でも、行く。
+- better: 今日は忙しいです。でも、行きます。
+
+Rule:
+Keep the sentence level consistent unless you are intentionally switching for style.
+                `.trim()
+            },
+            {
+                title: "Particle Confusion",
+                jlpt_level: 3,
+                difficulty_base: 4,
+                character_letter: "は",
+                image: "images/particles.png",
+                explanation: `
+Particles such as は, が, を, に, で are often confused.
+
+Strategy:
+- identify the action
+- identify the object
+- identify the location
+- identify the topic
+
+Example:
+- 学校で本を読みます。
+  I read a book at school.
+
+で marks the place of action.
+を marks the object.
+                `.trim()
+            }
+        ]
+    };
+
+    // -----------------------------
+    // TOPIC LIST / VIEW
+    // -----------------------------
+    function openTopicCategory(category) {
+        currentTopicCategory = category;
+
+        document.getElementById('topic-list-title').innerText =
+            category === 'grammar' ? 'Grammar Explanation' :
+            category === 'reading' ? 'Practice Reading' :
+            'Common Mistakes';
+
+        document.getElementById('sort-mode').value = 'difficulty';
+        renderTopicList();
+        showSection('topic-list', true);
+    }
+
+    function getCurrentTopics() {
+        return topicData[currentTopicCategory] || [];
+    }
+
+    function getSortedTopics() {
+        const sortMode = document.getElementById('sort-mode').value;
+        const topics = [...getCurrentTopics()];
+
+        if (sortMode === 'jlpt') {
+            topics.sort((a, b) => b.jlpt_level - a.jlpt_level);
+        } else if (sortMode === 'character') {
+            topics.sort((a, b) => compareKana(a.character_letter, b.character_letter));
+        } else {
+            topics.sort((a, b) => a.difficulty_base - b.difficulty_base);
+        }
+
+        return topics;
+    }
+
+    function openTopic(topicIndex) {
+        const topic = displayedTopics[topicIndex];
+        if (!topic) return;
+
+        document.getElementById('topic-title').innerText = topic.title;
+
+        const topicImg = document.getElementById('topic-image');
+        if (topic.image) {
+            topicImg.src = topic.image;
+            topicImg.alt = topic.title;
+            topicImg.style.display = 'block';
+            topicImg.onclick = (e) => {
+                e.stopPropagation();
+                openMediaModal(topic.image, 'image', topic.title);
+            };
+        } else {
+            topicImg.removeAttribute('src');
+            topicImg.style.display = 'none';
+            topicImg.onclick = null;
+        }
+
+        document.getElementById('badge-category').innerText =
+            currentTopicCategory === 'grammar' ? 'Grammar' :
+            currentTopicCategory === 'reading' ? 'Reading' : 'Mistakes';
+
+        document.getElementById('badge-jlpt').innerText = `JLPT N${topic.jlpt_level}`;
+        document.getElementById('badge-difficulty').innerText = `Difficulty ${topic.difficulty_base}/5`;
+        document.getElementById('badge-character').innerText = `Kana: ${topic.character_letter}`;
+
+        document.getElementById('topic-content').innerText = topic.explanation;
+        showSection('topic-view', true);
+    }
+
+    function renderTopicList() {
+        const body = document.getElementById('topic-list-body');
+        displayedTopics = getSortedTopics();
+
+        if (displayedTopics.length === 0) {
+            body.innerHTML = `<div class="empty-state">No topics have been added yet.</div>`;
+            return;
+        }
+
+        body.innerHTML = displayedTopics.map((topic, index) => {
+            return `
+                <div class="list-item" onclick="openTopic(${index})">
+                    <div>
+                        <div>${topic.title}</div>
+                        <div class="topic-meta">
+                            JLPT N${topic.jlpt_level} · Difficulty ${topic.difficulty_base}/5 · ${topic.character_letter}
+                        </div>
+                    </div>
+                    <span>></span>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // -----------------------------
+    // KANA SORTING
+    // -----------------------------
+    function toHiragana(str) {
+        return str.replace(/[\u30A1-\u30F6]/g, ch =>
+            String.fromCharCode(ch.charCodeAt(0) - 0x60)
+        );
+    }
+
+    const kanaRank = (() => {
+        const order = [
+            'あ','い','う','え','お',
+            'か','き','く','け','こ',
+            'が','ぎ','ぐ','げ','ご',
+            'さ','し','す','せ','そ',
+            'ざ','じ','ず','ぜ','ぞ',
+            'た','ち','つ','て','と',
+            'だ','ぢ','づ','で','ど',
+            'な','に','ぬ','ね','の',
+            'は','ひ','ふ','へ','ほ',
+            'ば','び','ぶ','べ','ぼ',
+            'ぱ','ぴ','ぷ','ぺ','ぽ',
+            'ま','み','む','め','も',
+            'や','ゆ','よ',
+            'ゃ','ゅ','ょ',
+            'ら','り','る','れ','ろ',
+            'わ','ゐ','ゑ','を',
+            'ん',
+            'ぁ','ぃ','ぅ','ぇ','ぉ',
+            'っ','ゔ'
+        ];
+
+        const map = new Map();
+        order.forEach((ch, i) => map.set(ch, i + 1));
+        return map;
+    })();
+
+    const kanaTokens = [
+        'きゃ','きゅ','きょ','ぎゃ','ぎゅ','ぎょ',
+        'しゃ','しゅ','しょ','じゃ','じゅ','じょ',
+        'ちゃ','ちゅ','ちょ','ぢゃ','ぢゅ','ぢょ',
+        'にゃ','にゅ','にょ',
+        'ひゃ','ひゅ','ひょ','びゃ','びゅ','びょ','ぴゃ','ぴゅ','ぴょ',
+        'みゃ','みゅ','みょ',
+        'りゃ','りゅ','りょ',
+        'ゔぁ','ゔぃ','ゔぇ','ゔぉ','ゔゅ'
+    ];
+
+    function tokenizeKana(str) {
+        const s = toHiragana((str || '').trim());
+        const tokens = [];
+        let i = 0;
+
+        while (i < s.length) {
+            let matched = null;
+
+            for (const token of kanaTokens) {
+                if (s.startsWith(token, i)) {
+                    matched = token;
+                    break;
+                }
+            }
+
+            if (matched) {
+                tokens.push(matched);
+                i += matched.length;
+                continue;
+            }
+
+            tokens.push(s[i]);
+            i += 1;
+        }
+
+        return tokens;
+    }
+
+    function compareKana(a, b) {
+        const ta = tokenizeKana(a);
+        const tb = tokenizeKana(b);
+        const len = Math.max(ta.length, tb.length);
+
+        for (let i = 0; i < len; i++) {
+            const ca = ta[i];
+            const cb = tb[i];
+
+            if (ca === undefined) return -1;
+            if (cb === undefined) return 1;
+            if (ca === cb) continue;
+
+            const ra = kanaRank.get(ca);
+            const rb = kanaRank.get(cb);
+
+            if (ra !== undefined && rb !== undefined) {
+                return ra - rb;
+            }
+
+            return ca.localeCompare(cb, 'ja');
+        }
+
+        return 0;
+    }
+</script>
+
+</body>
+</html>
