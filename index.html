@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>All in 1 JLC</title>
+    <title>Language Study Hub</title>
     <style>
         :root {
             --bg: #f8f9fa;
@@ -279,7 +279,13 @@
             line-height: 1.55;
             white-space: pre-wrap;
         }
-        
+
+        .media-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
         .media-row.two-column,
         .audio-row.two-column {
             display: grid;
@@ -289,24 +295,6 @@
 
         .audio-row.two-column > div {
             width: 100%;
-        }
-
-        .extra-audio {
-            width: 100%;
-            display: block;
-        }
-
-        @media (max-width: 560px) {
-            .media-row.two-column,
-            .audio-row.two-column {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .media-section {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
         }
 
         .media-item {
@@ -487,6 +475,8 @@
                 grid-template-columns: 1fr;
             }
 
+            .media-row.two-column,
+            .audio-row.two-column,
             .writing-row.cols-2,
             .writing-row.cols-3 {
                 grid-template-columns: 1fr;
@@ -499,13 +489,25 @@
 
 <nav>
     <button class="nav-btn" id="back-button" onclick="goBack()" style="visibility: hidden;">← Back</button>
-    <button class="nav-btn" onclick="showSection('home')">🏠 Home</button>
+    <button class="nav-btn" onclick="goHome()">🏠 Home</button>
 </nav>
 
-<div id="home" class="container active">
-    <h1>All in 1 JLC</h1>
+<div id="language-select" class="container active">
+    <h1>Study Hub</h1>
     <div class="menu-grid">
-        <div class="list-item" onclick="showSection('fc-menu', true)">
+        <div class="list-item" onclick="selectLanguage('jp')">
+            🇯🇵 Japanese <span>></span>
+        </div>
+        <div class="list-item" onclick="selectLanguage('zh')">
+            🇨🇳 Chinese <span>></span>
+        </div>
+    </div>
+</div>
+
+<div id="jp-home" class="container">
+    <h1>Japanese Hub</h1>
+    <div class="menu-grid">
+        <div class="list-item" onclick="openFlashcardMenu()">
             🎴 Flashcard Categories <span>></span>
         </div>
         <div class="list-item" onclick="openTopicCategory('reading')">
@@ -520,13 +522,27 @@
     </div>
 </div>
 
-<div id="fc-menu" class="container">
-    <h2>Categories</h2>
+<div id="zh-home" class="container">
+    <h1>中文学习中心</h1>
     <div class="menu-grid">
-        <div class="list-item" onclick="startFlashcards('あ')">あ-Row</div>
-        <div class="list-item" onclick="startFlashcards('か')">か-Row</div>
-        <div class="list-item" onclick="startFlashcards('さ')">さ-Row</div>
+        <div class="list-item" onclick="openFlashcardMenu()">
+            🎴 词卡分类 <span>></span>
+        </div>
+        <div class="list-item" onclick="openTopicCategory('reading')">
+            📖 阅读练习 <span>></span>
+        </div>
+        <div class="list-item" onclick="openTopicCategory('grammar')">
+            📝 语法说明 <span>></span>
+        </div>
+        <div class="list-item" onclick="openTopicCategory('mistakes')">
+            ⚠️ 常见错误 <span>></span>
+        </div>
     </div>
+</div>
+
+<div id="fc-menu" class="container">
+    <h2 id="fc-menu-title">Categories</h2>
+    <div id="fc-menu-body" class="menu-grid"></div>
 </div>
 
 <div id="fc-player" class="container">
@@ -539,29 +555,29 @@
 
                 <div class="card-face card-back">
                     <div class="back-section">
-                        <div class="reading-label">Reading</div>
+                        <div class="reading-label" id="reading-label">Reading</div>
                         <div class="reading-value" id="reading-text"></div>
                     </div>
 
                     <div class="back-section">
-                        <div class="reading-label">Meaning</div>
+                        <div class="reading-label" id="meaning-label">Meaning</div>
                         <div class="meaning-value" id="back-text"></div>
                     </div>
 
                     <div class="info-grid">
                         <div class="back-half">
-                            <div class="field-label">Formality</div>
+                            <div class="field-label" id="formality-label">Formality</div>
                             <div class="field-value" id="formality-text"></div>
                         </div>
 
                         <div class="back-half">
-                            <div class="field-label">Examples</div>
+                            <div class="field-label" id="examples-label">Examples</div>
                             <div class="field-value" id="examples-text"></div>
                         </div>
                     </div>
 
                     <div class="back-section">
-                        <div class="field-label">Explanation</div>
+                        <div class="field-label" id="explanation-label">Explanation</div>
                         <div class="field-value" id="explanation-text"></div>
                     </div>
 
@@ -573,17 +589,17 @@
 
                         <div class="audio-row two-column">
                             <div>
-                                <div class="field-label">Pronunciation Audio</div>
+                                <div class="field-label" id="pronunciation-audio-label">Pronunciation Audio</div>
                                 <audio id="pronunciation-audio" class="extra-audio" controls onclick="event.stopPropagation()"></audio>
                             </div>
                             <div>
-                                <div class="field-label">Sentence Audio</div>
+                                <div class="field-label" id="sentence-audio-label">Sentence Audio</div>
                                 <audio id="sentence-audio" class="extra-audio" controls onclick="event.stopPropagation()"></audio>
                             </div>
                         </div>
 
                         <div>
-                            <div class="field-label">Writing Stroke</div>
+                            <div class="field-label" id="writing-label">Writing Stroke</div>
                             <div id="writing-media-container" class="writing-media-stack"></div>
                         </div>
                     </div>
@@ -603,11 +619,7 @@
     <h2 id="topic-list-title">Topics</h2>
 
     <div class="controls">
-        <select id="sort-mode" onchange="renderTopicList()">
-            <option value="difficulty" selected>Sort by Difficulty</option>
-            <option value="jlpt">Sort by JLPT Level</option>
-            <option value="character">Sort by Character</option>
-        </select>
+        <select id="sort-mode" onchange="renderTopicList()"></select>
     </div>
 
     <div id="topic-list-body" class="topic-list"></div>
@@ -621,7 +633,7 @@
 
         <div class="topic-badges">
             <span class="badge" id="badge-category"></span>
-            <span class="badge" id="badge-jlpt"></span>
+            <span class="badge" id="badge-level"></span>
             <span class="badge" id="badge-difficulty"></span>
             <span class="badge" id="badge-character"></span>
         </div>
@@ -631,7 +643,7 @@
 </div>
 
 <footer class="app-footer">
-    <a href="https://drive.google.com/drive/folders/1XevW-tc7uBlaNBv57vXpUlSosi3Y1B3e?usp=sharing" target="_blank" rel="noopener noreferrer">
+    <a href="Your google drive link here" target="_blank" rel="noopener noreferrer">
         Download the app version ( Android only )
     </a>
 </footer>
@@ -645,24 +657,516 @@
 
 <script>
     // -----------------------------
-    // NAVIGATION
+    // APP CONFIG
     // -----------------------------
-    let navigationHistory = ['home'];
+    const appData = {
+        jp: {
+            homeId: 'jp-home',
+            homeTitle: 'Japanese Hub',
+            flashcardMenuTitle: 'Categories',
+            topicMenuTitle: 'Topics',
+            sortLabel: 'Sort by JLPT Level',
+            levelLabel: 'JLPT',
+            levelBadge: (topic) => `JLPT N${topic.level}`,
+            levelSortValue: 'level',
+            levelSortOptions: [
+                { value: 'difficulty', label: 'Sort by Difficulty' },
+                { value: 'level', label: 'Sort by JLPT Level' },
+                { value: 'character', label: 'Sort by Character' }
+            ],
+            navLabels: {
+                reading: '📖 Practice Reading',
+                grammar: '📝 Grammar Explanation',
+                mistakes: '⚠️ Common Mistakes'
+            },
+            flashcardCategories: [
+                { key: 'A', label: 'A-Row (あいうえお)' },
+                { key: 'KA', label: 'KA-Row (かきくけこ)' },
+                { key: 'SA', label: 'SA-Row (さしすせそ)' }
+            ],
+            decks: {
+                A: [
+                    {
+                        front: "あお",
+                        reading: "青 (あお)",
+                        back: "Blue",
+                        image: "images/青.webp",
+                        pronunciation_img: "images/青-pronunciation.png",
+                        writing_video_1: "videos/青-stroke.mp4",
+                        writing_video_2: ["videos/あ.mp4", "videos/お.mp4"],
+                        audio: "audio-files/青.mp3",
+                        sentence_audio: "audio-files/青-sentence.mp3",
+                        examples: "青は僕の好きな色です。\nBlue is my favorite color.",
+                        formality: "Neutral / common usage",
+                        explanation: "青 (あお) means blue. It can also mean green in compounds, plant contexts, and traffic-light contexts."
+                    },
+                    {
+                        front: "愛",
+                        reading: "あい",
+                        back: "Love",
+                        image: "images/ai.png",
+                        pronunciation_img: "images/ai-pronunciation.png",
+                        writing_video_1: "images/ai-stroke-1.mp4",
+                        writing_video_2: "images/ai-stroke-2.mp4",
+                        audio: "audio/ai.mp3",
+                        sentence_audio: "audio/ai-sentence.mp3",
+                        examples: "家族のあい。\nFamily love.",
+                        formality: "Neutral / common usage",
+                        explanation: "愛 (あい) means love or affection."
+                    }
+                ],
+                KA: [
+                    {
+                        front: "かさ",
+                        reading: "Kasa",
+                        back: "Umbrella",
+                        image: "images/kasa.png",
+                        pronunciation_img: "images/kasa-pronunciation.png",
+                        writing_img: "images/kasa-stroke.png",
+                        audio: "audio/kasa.mp3",
+                        sentence_audio: "audio/kasa-sentence.mp3",
+                        examples: "かさを持っていきます。\nI will take an umbrella.",
+                        formality: "Neutral / common usage",
+                        explanation: "かさ means umbrella."
+                    },
+                    {
+                        front: "かに",
+                        reading: "Kani",
+                        back: "Crab",
+                        image: "images/kani.png",
+                        pronunciation_img: "images/kani-pronunciation.png",
+                        writing_img: "images/kani-stroke.png",
+                        audio: "audio/kani.mp3",
+                        sentence_audio: "audio/kani-sentence.mp3",
+                        examples: "かには海にいます。\nCrabs are in the sea.",
+                        formality: "Neutral / common usage",
+                        explanation: "かに means crab."
+                    }
+                ],
+                SA: [
+                    {
+                        front: "さむい",
+                        reading: "Samui",
+                        back: "Cold (Weather)",
+                        image: "images/samui.png",
+                        pronunciation_img: "images/samui-pronunciation.png",
+                        writing_img: "images/samui-stroke.png",
+                        audio: "audio/samui.mp3",
+                        sentence_audio: "audio/samui-sentence.mp3",
+                        examples: "今日はさむいです。\nIt is cold today.",
+                        formality: "Polite / neutral",
+                        explanation: "さむい is used for cold weather or temperature."
+                    }
+                ]
+            },
+            topicData: {
+                grammar: [
+                    {
+                        title: "は vs が",
+                        level: 4,
+                        difficulty_base: 2,
+                        character_letter: "は",
+                        image: "images/wa-vs-ga.png",
+                        explanation: `
+は and が both mark grammatical roles, but they are not interchangeable.
+
+は marks the topic. It tells the listener what the sentence is about.
+が marks the subject, especially when emphasizing new information, existence, or ability.
+
+Examples:
+- わたしは学生です。
+  I am a student.
+
+- だれが来ましたか。
+  Who came?
+
+Key idea:
+Use は when you are setting the topic.
+Use が when you are identifying the subject or highlighting something specific.
+                        `.trim()
+                    },
+                    {
+                        title: "だ Meaning",
+                        level: 5,
+                        difficulty_base: 1,
+                        character_letter: "だ",
+                        image: "images/da.png",
+                        explanation: `
+だ is the plain copula in Japanese.
+
+It is used in casual speech and in dictionary-form style sentences.
+It connects nouns and adjectives in a direct way.
+
+Examples:
+- これは本だ。
+  This is a book.
+
+- 彼は先生だ。
+  He is a teacher.
+
+In polite speech, です is more common.
+                        `.trim()
+                    }
+                ],
+                reading: [
+                    {
+                        title: "Daily Life",
+                        level: 5,
+                        difficulty_base: 1,
+                        character_letter: "た",
+                        image: "images/daily-life.png",
+                        explanation: `
+Daily-life reading passages usually talk about routines, shopping, school, family, or transport.
+
+What to focus on:
+- common verbs
+- time expressions
+- particles
+- short sentence structure
+
+Example:
+- 朝ごはんを食べて、学校へ行きます。
+  I eat breakfast, then go to school.
+                        `.trim()
+                    },
+                    {
+                        title: "Train Announcements",
+                        level: 3,
+                        difficulty_base: 4,
+                        character_letter: "で",
+                        image: "images/train.png",
+                        explanation: `
+Train announcements often contain numbers, station names, direction words, and polite instructions.
+
+What to focus on:
+- destination names
+- delay / cancel vocabulary
+- platform numbers
+- time expressions
+
+Example:
+- 次の電車は5番線から出発します。
+  The next train departs from platform 5.
+                        `.trim()
+                    }
+                ],
+                mistakes: [
+                    {
+                        title: "Politeness Errors",
+                        level: 4,
+                        difficulty_base: 3,
+                        character_letter: "お",
+                        image: "images/politeness.png",
+                        explanation: `
+A common mistake is mixing casual and polite forms in the same sentence.
+
+Examples:
+- incorrect: 今日は忙しいです。でも、行く。
+- better: 今日は忙しいです。でも、行きます。
+
+Rule:
+Keep the sentence level consistent unless you are intentionally switching for style.
+                        `.trim()
+                    },
+                    {
+                        title: "Particle Confusion",
+                        level: 3,
+                        difficulty_base: 4,
+                        character_letter: "は",
+                        image: "images/particles.png",
+                        explanation: `
+Particles such as は, が, を, に, で are often confused.
+
+Strategy:
+- identify the action
+- identify the object
+- identify the location
+- identify the topic
+
+Example:
+- 学校で本を読みます。
+  I read a book at school.
+
+で marks the place of action.
+を marks the object.
+                        `.trim()
+                    }
+                ]
+            }
+        },
+
+        zh: {
+            homeId: 'zh-home',
+            homeTitle: '中文学习中心',
+            flashcardMenuTitle: '词卡分类',
+            topicMenuTitle: '主题',
+            sortLabel: '按汉语水平排序',
+            levelLabel: 'HSK',
+            levelBadge: (topic) => `HSK ${topic.level}`,
+            levelSortValue: 'level',
+            levelSortOptions: [
+                { value: 'difficulty', label: '按难度排序' },
+                { value: 'level', label: '按 HSK 排序' },
+                { value: 'character', label: '按字词顺序排序' }
+            ],
+            navLabels: {
+                reading: '📖 阅读练习',
+                grammar: '📝 语法说明',
+                mistakes: '⚠️ 常见错误'
+            },
+            flashcardCategories: [
+                { key: 'P1', label: '拼音入门' },
+                { key: 'P2', label: '常用汉字' },
+                { key: 'P3', label: '日常句子' }
+            ],
+            decks: {
+                P1: [
+                    {
+                        front: "你好",
+                        reading: "nǐ hǎo",
+                        back: "Hello",
+                        image: "images/nihao.png",
+                        pronunciation_img: "images/nihao-pronunciation.png",
+                        writing_video_1: "videos/nihao-stroke-1.mp4",
+                        writing_video_2: ["videos/nihao-stroke-2.mp4", "videos/nihao-stroke-3.mp4"],
+                        audio: "audio/nihao.mp3",
+                        sentence_audio: "audio/nihao-sentence.mp3",
+                        examples: "你好！\nHello!",
+                        formality: "Neutral / common usage",
+                        explanation: "你好 is a standard greeting in Mandarin Chinese."
+                    },
+                    {
+                        front: "谢谢",
+                        reading: "xiè xie",
+                        back: "Thank you",
+                        image: "images/xiexie.png",
+                        pronunciation_img: "images/xiexie-pronunciation.png",
+                        writing_video_1: "videos/xiexie-stroke-1.mp4",
+                        writing_video_2: "videos/xiexie-stroke-2.mp4",
+                        audio: "audio/xiexie.mp3",
+                        sentence_audio: "audio/xiexie-sentence.mp3",
+                        examples: "谢谢你的帮助。\nThank you for your help.",
+                        formality: "Neutral / common usage",
+                        explanation: "谢谢 means thank you."
+                    }
+                ],
+                P2: [
+                    {
+                        front: "我",
+                        reading: "wǒ",
+                        back: "I / me",
+                        image: "images/wo.png",
+                        pronunciation_img: "images/wo-pronunciation.png",
+                        writing_img: "images/wo-stroke.png",
+                        audio: "audio/wo.mp3",
+                        sentence_audio: "audio/wo-sentence.mp3",
+                        examples: "我是学生。\nI am a student.",
+                        formality: "Neutral / common usage",
+                        explanation: "我 means I or me."
+                    },
+                    {
+                        front: "你",
+                        reading: "nǐ",
+                        back: "You",
+                        image: "images/ni.png",
+                        pronunciation_img: "images/ni-pronunciation.png",
+                        writing_img: "images/ni-stroke.png",
+                        audio: "audio/ni.mp3",
+                        sentence_audio: "audio/ni-sentence.mp3",
+                        examples: "你好吗？\nHow are you?",
+                        formality: "Neutral / common usage",
+                        explanation: "你 means you."
+                    }
+                ],
+                P3: [
+                    {
+                        front: "我是学生",
+                        reading: "wǒ shì xuéshēng",
+                        back: "I am a student",
+                        image: "images/woshixuesheng.png",
+                        pronunciation_img: "images/woshixuesheng-pronunciation.png",
+                        writing_video_1: "videos/woshixuesheng-stroke-1.mp4",
+                        writing_video_2: ["videos/woshixuesheng-stroke-2.mp4", "videos/woshixuesheng-stroke-3.mp4"],
+                        audio: "audio/woshixuesheng.mp3",
+                        sentence_audio: "audio/woshixuesheng-sentence.mp3",
+                        examples: "我是学生。\nI am a student.",
+                        formality: "Neutral / common usage",
+                        explanation: "This is a basic Chinese sentence structure: subject + 是 + noun."
+                    }
+                ]
+            },
+            topicData: {
+                grammar: [
+                    {
+                        title: "是 vs 不是",
+                        level: 5,
+                        difficulty_base: 1,
+                        character_letter: "是",
+                        image: "images/shi.png",
+                        explanation: `
+是 is the copula in Mandarin Chinese. It links subject and noun.
+
+Examples:
+- 我是学生。
+  I am a student.
+
+不是 means "is not" or "am not."
+
+Examples:
+- 我不是老师。
+  I am not a teacher.
+
+This is one of the most basic sentence patterns in Chinese.
+                        `.trim()
+                    },
+                    {
+                        title: "的 / 地 / 得",
+                        level: 4,
+                        difficulty_base: 3,
+                        character_letter: "的",
+                        image: "images/de.png",
+                        explanation: `
+的, 地, and 得 are pronounced the same in Mandarin, but they have different jobs.
+
+的 is used for possession or modification.
+- 我的书
+  my book
+
+地 comes before verbs and modifies how an action is done.
+- 慢慢地走
+  walk slowly
+
+得 comes after verbs and gives extra description.
+- 说得很好
+  speak very well
+                        `.trim()
+                    }
+                ],
+                reading: [
+                    {
+                        title: "Daily Conversation",
+                        level: 5,
+                        difficulty_base: 1,
+                        character_letter: "你",
+                        image: "images/chinese-daily.png",
+                        explanation: `
+Daily Chinese reading usually uses short, practical sentences.
+
+What to focus on:
+- basic sentence order
+- common particles
+- everyday vocabulary
+- context clues
+
+Example:
+- 你今天忙吗？
+  Are you busy today?
+                        `.trim()
+                    },
+                    {
+                        title: "School Notice",
+                        level: 3,
+                        difficulty_base: 4,
+                        character_letter: "学",
+                        image: "images/chinese-school.png",
+                        explanation: `
+School notices often use dates, times, and formal instructions.
+
+What to focus on:
+- dates and times
+- verbs for announce / inform
+- formal phrases
+- important nouns
+
+Example:
+- 下周一上午十点开会。
+  There will be a meeting next Monday at 10 a.m.
+                        `.trim()
+                    }
+                ],
+                mistakes: [
+                    {
+                        title: "Tone Errors",
+                        level: 5,
+                        difficulty_base: 2,
+                        character_letter: "妈",
+                        image: "images/tones.png",
+                        explanation: `
+A very common mistake in Mandarin is using the wrong tone.
+
+Strategy:
+- listen carefully
+- repeat slowly
+- memorize tone pairs
+- practice short syllables first
+                        `.trim()
+                    },
+                    {
+                        title: "Measure Word Confusion",
+                        level: 4,
+                        difficulty_base: 3,
+                        character_letter: "个",
+                        image: "images/measure.png",
+                        explanation: `
+Chinese often needs measure words between numbers and nouns.
+
+Examples:
+- 一个苹果
+  one apple
+
+- 两本书
+  two books
+
+Using the correct measure word is important in natural Chinese.
+                        `.trim()
+                    }
+                ]
+            }
+        }
+    };
+
+    // -----------------------------
+    // STATE
+    // -----------------------------
+    let currentLanguage = null;
     let currentTopicCategory = null;
     let displayedTopics = [];
+    let currentActiveDeck = [];
+    let currentOrder = [];
+    let currentPosition = 0;
+    let navigationHistory = ['language-select'];
 
+    // -----------------------------
+    // NAVIGATION
+    // -----------------------------
     function showSection(id, pushHistory = false) {
         document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
+        const el = document.getElementById(id);
+        if (el) el.classList.add('active');
 
-        if (id === 'home') {
-            navigationHistory = ['home'];
+        if (id === 'language-select') {
+            navigationHistory = ['language-select'];
         } else if (pushHistory) {
             navigationHistory.push(id);
         }
 
         document.getElementById('back-button').style.visibility =
             navigationHistory.length > 1 ? 'visible' : 'hidden';
+    }
+
+    function goHome() {
+        currentLanguage = null;
+        currentTopicCategory = null;
+        currentActiveDeck = [];
+        currentOrder = [];
+        currentPosition = 0;
+        showSection('language-select');
+    }
+
+    function selectLanguage(lang) {
+        currentLanguage = lang;
+        navigationHistory = ['language-select'];
+        showSection(appData[lang].homeId, true);
     }
 
     function goBack() {
@@ -672,14 +1176,15 @@
         const prevSection = navigationHistory[navigationHistory.length - 1];
 
         document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
-        document.getElementById(prevSection).classList.add('active');
+        const prevEl = document.getElementById(prevSection);
+        if (prevEl) prevEl.classList.add('active');
 
         if (prevSection === 'topic-list') {
             renderTopicList();
         }
 
         document.getElementById('back-button').style.visibility =
-            prevSection === 'home' ? 'hidden' : 'visible';
+            prevSection === 'language-select' ? 'hidden' : 'visible';
     }
 
     // -----------------------------
@@ -692,13 +1197,9 @@
         if (!src) return;
 
         if (type === 'video') {
-            content.innerHTML = `
-                <video src="${src}" controls autoplay loop muted playsinline></video>
-            `;
+            content.innerHTML = `<video src="${src}" controls autoplay loop muted playsinline></video>`;
         } else {
-            content.innerHTML = `
-                <img src="${src}" alt="${altText}">
-            `;
+            content.innerHTML = `<img src="${src}" alt="${altText}">`;
         }
 
         modal.classList.add('open');
@@ -713,93 +1214,28 @@
     }
 
     // -----------------------------
-    // FLASHCARD DATA
+    // FLASHCARD MENU
     // -----------------------------
-    const allDecks = {
-        'あ': [
-            {
-                front: "青",
-                reading: "青 (あお)",
-                back: "Blue",
-                image: "images/青.webp",
-                pronunciation_img: "images/青-pronunciation.png",
-                writing_video_1: "videos/青-stroke.mp4",
-                writing_video_2: [
-                    "videos/あ.mp4",
-                    "videos/お.mp4"
-                ],
-                audio: "audio-files/青.mp3",
-                sentence_audio: "audio-files/青-sentence.mp3",
-                examples: "青は僕の好きな色です。\nBlue is my favorite color.",
-                formality: "Neutral / common usage",
-                explanation: "青 (あお) means blue. It can also mean green in compounds, plant contexts, and traffic-light contexts."
-            },
-            {
-                front: "愛",
-                reading: "あい",
-                back: "Love",
-                image: "images/ai.png",
-                pronunciation_img: "images/ai-pronunciation.png",
-                writing_video_1: "videos/ai-stroke-1.mp4",
-                writing_video_2: "videos/ai-stroke-2.mp4",
-                audio: "audio/ai.mp3",
-                sentence_audio: "audio/ai-sentence.mp3",
-                examples: "家族のあい。\nFamily love.",
-                formality: "Neutral / common usage",
-                explanation: "愛 (あい) means love or affection."
-            }
-        ],
-        'か': [
-            {
-                front: "かさ",
-                reading: "Kasa",
-                back: "Umbrella",
-                image: "images/kasa.png",
-                pronunciation_img: "images/kasa-pronunciation.png",
-                writing_img: "images/kasa-stroke.png",
-                audio: "audio/kasa.mp3",
-                sentence_audio: "audio/kasa-sentence.mp3",
-                examples: "かさを持っていきます。\nI will take an umbrella.",
-                formality: "Neutral / common usage",
-                explanation: "かさ means umbrella."
-            },
-            {
-                front: "かに",
-                reading: "Kani",
-                back: "Crab",
-                image: "images/kani.png",
-                pronunciation_img: "images/kani-pronunciation.png",
-                writing_img: "images/kani-stroke.png",
-                audio: "audio/kani.mp3",
-                sentence_audio: "audio/kani-sentence.mp3",
-                examples: "かには海にいます。\nCrabs are in the sea.",
-                formality: "Neutral / common usage",
-                explanation: "かに means crab."
-            }
-        ],
-        'さ': [
-            {
-                front: "さむい",
-                reading: "Samui",
-                back: "Cold (Weather)",
-                image: "images/samui.png",
-                pronunciation_img: "images/samui-pronunciation.png",
-                writing_img: "images/samui-stroke.png",
-                audio: "audio/samui.mp3",
-                sentence_audio: "audio/samui-sentence.mp3",
-                examples: "今日はさむいです。\nIt is cold today.",
-                formality: "Polite / neutral",
-                explanation: "さむい is used for cold weather or temperature."
-            }
-        ]
-    };
+    function openFlashcardMenu() {
+        if (!currentLanguage) return;
 
-    let currentActiveDeck = [];
-    let currentOrder = [];
-    let currentPosition = 0;
+        const cfg = appData[currentLanguage];
+        document.getElementById('fc-menu-title').innerText = cfg.flashcardMenuTitle;
+
+        const body = document.getElementById('fc-menu-body');
+        body.innerHTML = cfg.flashcardCategories.map(cat => `
+            <div class="list-item" onclick="startFlashcards('${cat.key}')">
+                ${cat.label}
+            </div>
+        `).join('');
+
+        showSection('fc-menu', true);
+    }
 
     function startFlashcards(row) {
-        currentActiveDeck = allDecks[row] || [];
+        if (!currentLanguage) return;
+
+        currentActiveDeck = (appData[currentLanguage].decks[row] || []);
         if (currentActiveDeck.length === 0) {
             alert("No cards in this row yet!");
             return;
@@ -809,7 +1245,8 @@
         shuffleArray(currentOrder);
 
         currentPosition = 0;
-        document.getElementById('category-title').innerText = row + "-Row";
+        document.getElementById('category-title').innerText = row;
+        updateUITextForLanguage();
         updateUI();
         showSection('fc-player', true);
     }
@@ -859,7 +1296,6 @@
             el.src = src;
             if (altText) el.alt = altText;
             el.style.display = 'block';
-            el.classList.add('clickable-media');
             el.onclick = (e) => {
                 e.stopPropagation();
                 openMediaModal(src, 'image', altText || el.alt || 'Image');
@@ -992,6 +1428,22 @@
         });
     }
 
+    function updateUITextForLanguage() {
+        if (!currentLanguage) return;
+
+        const cfg = appData[currentLanguage];
+
+        document.getElementById('reading-label').innerText = currentLanguage === 'jp' ? 'Reading' : '拼音';
+        document.getElementById('meaning-label').innerText = currentLanguage === 'jp' ? 'Meaning' : '意思';
+        document.getElementById('formality-label').innerText = currentLanguage === 'jp' ? 'Formality' : '语体';
+        document.getElementById('examples-label').innerText = currentLanguage === 'jp' ? 'Examples' : '例句';
+        document.getElementById('explanation-label').innerText = currentLanguage === 'jp' ? 'Explanation' : '说明';
+        document.getElementById('pronunciation-audio-label').innerText = currentLanguage === 'jp' ? 'Pronunciation Audio' : '发音音频';
+        document.getElementById('sentence-audio-label').innerText = currentLanguage === 'jp' ? 'Sentence Audio' : '句子音频';
+        document.getElementById('writing-label').innerText = currentLanguage === 'jp' ? 'Writing Stroke' : '笔顺';
+        document.getElementById('fc-menu-title').innerText = cfg.flashcardMenuTitle;
+    }
+
     function updateUI() {
         const data = currentActiveDeck[currentOrder[currentPosition]];
         if (!data) return;
@@ -1013,173 +1465,48 @@
     }
 
     // -----------------------------
-    // TOPIC DATA
-    // -----------------------------
-    const topicData = {
-        grammar: [
-            {
-                title: "は vs が",
-                jlpt_level: 4,
-                difficulty_base: 2,
-                character_letter: "は",
-                image: "images/wa-vs-ga.png",
-                explanation: `
-は and が both mark grammatical roles, but they are not interchangeable.
-
-は marks the topic. It tells the listener what the sentence is about.
-が marks the subject, especially when emphasizing new information, existence, or ability.
-
-Examples:
-- わたしは学生です。
-  I am a student.
-
-- だれが来ましたか。
-  Who came?
-
-Key idea:
-Use は when you are setting the topic.
-Use が when you are identifying the subject or highlighting something specific.
-                `.trim()
-            },
-            {
-                title: "だ Meaning",
-                jlpt_level: 5,
-                difficulty_base: 1,
-                character_letter: "だ",
-                image: "images/da.png",
-                explanation: `
-だ is the plain copula in Japanese.
-
-It is used in casual speech and in dictionary-form style sentences.
-It connects nouns and adjectives in a direct way.
-
-Examples:
-- これは本だ。
-  This is a book.
-
-- 彼は先生だ。
-  He is a teacher.
-
-In polite speech, です is more common.
-                `.trim()
-            }
-        ],
-
-        reading: [
-            {
-                title: "Daily Life",
-                jlpt_level: 5,
-                difficulty_base: 1,
-                character_letter: "た",
-                image: "images/daily-life.png",
-                explanation: `
-Daily-life reading passages usually talk about routines, shopping, school, family, or transport.
-
-What to focus on:
-- common verbs
-- time expressions
-- particles
-- short sentence structure
-
-Example:
-- 朝ごはんを食べて、学校へ行きます。
-  I eat breakfast, then go to school.
-                `.trim()
-            },
-            {
-                title: "Train Announcements",
-                jlpt_level: 3,
-                difficulty_base: 4,
-                character_letter: "で",
-                image: "images/train.png",
-                explanation: `
-Train announcements often contain numbers, station names, direction words, and polite instructions.
-
-What to focus on:
-- destination names
-- delay / cancel vocabulary
-- platform numbers
-- time expressions
-
-Example:
-- 次の電車は5番線から出発します。
-  The next train departs from platform 5.
-                `.trim()
-            }
-        ],
-
-        mistakes: [
-            {
-                title: "Politeness Errors",
-                jlpt_level: 4,
-                difficulty_base: 3,
-                character_letter: "お",
-                image: "images/politeness.png",
-                explanation: `
-A common mistake is mixing casual and polite forms in the same sentence.
-
-Examples:
-- incorrect: 今日は忙しいです。でも、行く。
-- better: 今日は忙しいです。でも、行きます。
-
-Rule:
-Keep the sentence level consistent unless you are intentionally switching for style.
-                `.trim()
-            },
-            {
-                title: "Particle Confusion",
-                jlpt_level: 3,
-                difficulty_base: 4,
-                character_letter: "は",
-                image: "images/particles.png",
-                explanation: `
-Particles such as は, が, を, に, で are often confused.
-
-Strategy:
-- identify the action
-- identify the object
-- identify the location
-- identify the topic
-
-Example:
-- 学校で本を読みます。
-  I read a book at school.
-
-で marks the place of action.
-を marks the object.
-                `.trim()
-            }
-        ]
-    };
-
-    // -----------------------------
     // TOPIC LIST / VIEW
     // -----------------------------
     function openTopicCategory(category) {
+        if (!currentLanguage) return;
+
         currentTopicCategory = category;
+        const cfg = appData[currentLanguage];
 
-        document.getElementById('topic-list-title').innerText =
-            category === 'grammar' ? 'Grammar Explanation' :
-            category === 'reading' ? 'Practice Reading' :
-            'Common Mistakes';
+        document.getElementById('topic-list-title').innerText = cfg.navLabels[category] || cfg.topicMenuTitle;
 
-        document.getElementById('sort-mode').value = 'difficulty';
+        const sortSelect = document.getElementById('sort-mode');
+        sortSelect.innerHTML = cfg.levelSortOptions.map(opt =>
+            `<option value="${opt.value}">${opt.label}</option>`
+        ).join('');
+
+        sortSelect.value = 'difficulty';
         renderTopicList();
         showSection('topic-list', true);
     }
 
     function getCurrentTopics() {
-        return topicData[currentTopicCategory] || [];
+        if (!currentLanguage || !currentTopicCategory) return [];
+        return appData[currentLanguage].topicData[currentTopicCategory] || [];
     }
 
     function getSortedTopics() {
+        const cfg = appData[currentLanguage];
         const sortMode = document.getElementById('sort-mode').value;
         const topics = [...getCurrentTopics()];
 
-        if (sortMode === 'jlpt') {
-            topics.sort((a, b) => b.jlpt_level - a.jlpt_level);
+        if (sortMode === 'level') {
+            if (currentLanguage === 'jp') {
+                topics.sort((a, b) => b.level - a.level); // N5 -> N1
+            } else {
+                topics.sort((a, b) => a.level - b.level); // HSK 1 -> 6
+            }
         } else if (sortMode === 'character') {
-            topics.sort((a, b) => compareKana(a.character_letter, b.character_letter));
+            if (currentLanguage === 'jp') {
+                topics.sort((a, b) => compareKana(a.character_letter, b.character_letter));
+            } else {
+                topics.sort((a, b) => comparePinyin(a.character_letter, b.character_letter));
+            }
         } else {
             topics.sort((a, b) => a.difficulty_base - b.difficulty_base);
         }
@@ -1190,6 +1517,8 @@ Example:
     function openTopic(topicIndex) {
         const topic = displayedTopics[topicIndex];
         if (!topic) return;
+
+        const cfg = appData[currentLanguage];
 
         document.getElementById('topic-title').innerText = topic.title;
 
@@ -1209,12 +1538,17 @@ Example:
         }
 
         document.getElementById('badge-category').innerText =
-            currentTopicCategory === 'grammar' ? 'Grammar' :
-            currentTopicCategory === 'reading' ? 'Reading' : 'Mistakes';
+            currentLanguage === 'jp'
+                ? (currentTopicCategory === 'grammar' ? 'Grammar' : currentTopicCategory === 'reading' ? 'Reading' : 'Mistakes')
+                : (currentTopicCategory === 'grammar' ? '语法' : currentTopicCategory === 'reading' ? '阅读' : '错误');
 
-        document.getElementById('badge-jlpt').innerText = `JLPT N${topic.jlpt_level}`;
-        document.getElementById('badge-difficulty').innerText = `Difficulty ${topic.difficulty_base}/5`;
-        document.getElementById('badge-character').innerText = `Kana: ${topic.character_letter}`;
+        document.getElementById('badge-level').innerText = cfg.levelBadge(topic);
+        document.getElementById('badge-difficulty').innerText = currentLanguage === 'jp'
+            ? `Difficulty ${topic.difficulty_base}/5`
+            : `难度 ${topic.difficulty_base}/5`;
+        document.getElementById('badge-character').innerText = currentLanguage === 'jp'
+            ? `Kana: ${topic.character_letter}`
+            : `拼音/字词: ${topic.character_letter}`;
 
         document.getElementById('topic-content').innerText = topic.explanation;
         showSection('topic-view', true);
@@ -1225,17 +1559,19 @@ Example:
         displayedTopics = getSortedTopics();
 
         if (displayedTopics.length === 0) {
-            body.innerHTML = `<div class="empty-state">No topics have been added yet.</div>`;
+            body.innerHTML = `<div class="empty-state">${currentLanguage === 'jp' ? 'No topics have been added yet.' : '暂无内容。'}</div>`;
             return;
         }
 
         body.innerHTML = displayedTopics.map((topic, index) => {
+            const cfg = appData[currentLanguage];
+            const levelText = cfg.levelBadge(topic);
             return `
                 <div class="list-item" onclick="openTopic(${index})">
                     <div>
                         <div>${topic.title}</div>
                         <div class="topic-meta">
-                            JLPT N${topic.jlpt_level} · Difficulty ${topic.difficulty_base}/5 · ${topic.character_letter}
+                            ${levelText} · ${currentLanguage === 'jp' ? 'Difficulty' : '难度'} ${topic.difficulty_base}/5 · ${topic.character_letter}
                         </div>
                     </div>
                     <span>></span>
@@ -1245,10 +1581,10 @@ Example:
     }
 
     // -----------------------------
-    // KANA SORTING
+    // SORT HELPERS
     // -----------------------------
     function toHiragana(str) {
-        return str.replace(/[\u30A1-\u30F6]/g, ch =>
+        return (str || '').replace(/[\u30A1-\u30F6]/g, ch =>
             String.fromCharCode(ch.charCodeAt(0) - 0x60)
         );
     }
@@ -1345,6 +1681,25 @@ Example:
 
         return 0;
     }
+
+    function stripPinyinMarks(str) {
+        return (str || '')
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase()
+            .replace(/ü/g, 'u');
+    }
+
+    function comparePinyin(a, b) {
+        return stripPinyinMarks(a).localeCompare(stripPinyinMarks(b), 'en');
+    }
+
+    // Initialize on load
+    document.getElementById('sort-mode').innerHTML = `
+        <option value="difficulty">Sort by Difficulty</option>
+        <option value="level">${currentLanguage === 'zh' ? '按 HSK 排序' : 'Sort by JLPT Level'}</option>
+        <option value="character">${currentLanguage === 'zh' ? '按字词顺序排序' : 'Sort by Character'}</option>
+    `;
 </script>
 
 </body>
